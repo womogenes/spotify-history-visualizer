@@ -7,3 +7,13 @@ export const parseHistoryJSON = (json: string) => {
 		spotify_track_uri: stream.spotify_track_uri
 	}));
 };
+
+// Merge old streaming history with new streaming history
+// Don't add streams that already exist in old streamsd
+export const mergeHistory = (oldHistory, addHistory) => {
+	const oldIdSet = new Set(oldHistory.map((stream) => stream.ts));
+	const newHistoryToAdd = addHistory.filter((stream) => !oldIdSet.has(stream.ts));
+	const newHistory = [...oldHistory, ...newHistoryToAdd];
+	newHistory.sort((a, b) => (a.ts < b.ts ? -1 : 1));
+	return newHistory;
+};

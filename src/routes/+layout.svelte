@@ -19,7 +19,7 @@
 	/>
 </svelte:head>
 
-<div class="dark:dark h-full p-4 dark:bg-neutral-950">
+<div class="dark:dark h-full dark:bg-neutral-950">
 	<slot />
 </div>
 
