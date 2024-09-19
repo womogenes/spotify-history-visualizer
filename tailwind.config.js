@@ -10,7 +10,8 @@ const config = {
 			}
 		},
 		fontFamily: {
-			sans: ['Inter', 'Arial']
+			sans: ['Inter', 'Arial'],
+			mono: ['Fira Mono']
 		},
 		extend: {}
 	}

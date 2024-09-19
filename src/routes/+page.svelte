@@ -7,6 +7,7 @@
 	import Dropzone from 'svelte-file-dropzone';
 	import { cn } from 'lib/utils';
 	import { Skeleton } from 'lib/components/ui/skeleton';
+	import Histogram from './Histogram.svelte';
 
 	// UI loading state vars
 	let uploadedFiles = 0;
@@ -16,7 +17,7 @@
 
 	let history = [];
 	ldb.get('streaming_history', (v) => {
-		history = mergeHistory(history, v);
+		if (v) history = mergeHistory(history, v);
 		loadedLocalStorage = true;
 	});
 
@@ -40,7 +41,18 @@
 </script>
 
 <div class="flex h-full">
-	<div class="flex h-full max-w-64 flex-col justify-end border-r">
+	<!-- Left sidebar -->
+	<div class="flex h-full w-full max-w-64 shrink-0 flex-col border-r">
+		<div class="border-b p-4">
+			<h1 class="text-lg font-bold">Spotify history visualizer</h1>
+			<p class="text-sm">
+				Instructions: Request Spotify data as per <a
+					class="underline"
+					href="https://support.spotify.com/us/article/understanding-my-data/">this site</a
+				> and upload it back here to visualize your streaming history.
+			</p>
+		</div>
+
 		<!-- Stats -->
 		<div class="p-4">
 			<div class="flex items-center gap-1">
@@ -48,13 +60,13 @@
 				{#if loadedLocalStorage}
 					{history.length.toLocaleString('en-US')}
 				{:else}
-					<Skeleton class="ml-2 mt-1 h-4 w-10" />
+					<Skeleton class="mt-1 h-4 w-12" />
 				{/if}
 			</div>
 		</div>
 
 		<!-- Container for uploading files -->
-		<div class="flex flex-col gap-2 border-t p-4">
+		<div class="mt-auto flex flex-col gap-2 border-t p-4">
 			<b>Upload listening history</b>
 
 			<Dropzone
@@ -76,5 +88,19 @@
 
 			<p class="text-sm dark:text-neutral-400">Files are stored in IndexedDB.</p>
 		</div>
+	</div>
+
+	<!-- Main data -->
+	<div class="w-full p-4">
+		{#if history.length > 0}
+			<Histogram {history} />
+		{:else}
+			<div class="flex flex-col gap-2">
+				<Skeleton class="h-6 w-1/2 rounded-full" />
+				<Skeleton class="h-6 w-3/4 rounded-full" />
+				<Skeleton class="h-6 w-1/4 rounded-full" />
+				<Skeleton class="h-6 w-1/2 rounded-full" />
+			</div>
+		{/if}
 	</div>
 </div>
