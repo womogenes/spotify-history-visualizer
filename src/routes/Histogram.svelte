@@ -1,53 +1,90 @@
 <script>
-	import { Slider } from 'lib/components/ui/slider';
-	import { onMount } from 'svelte';
+  import { Slider } from '$lib/components/ui/slider';
+  import { onMount } from 'svelte';
+  import { getSongPopularity } from '$lib/logic/summary';
+  import { formatTimestamp, formatDuration } from '$lib/logic/utils';
+  import { cyrb53 } from '$lib/logic/utils';
 
-	export let history = [];
+  export let history = [];
 
-	let minTime = 0;
-	let maxTime = 0;
-	let sliderTimeValue = [0];
-	$: sliderTime = sliderTimeValue[0] * 1e3 + minTime;
+  let minTime = 0;
+  let maxTime = 0;
+  let sliderTimeValue = [0];
+  $: sliderTime = sliderTimeValue[0] * 1e3 + minTime;
+  let songPopularity = [];
 
-	onMount(() => {
-		console.log('history:', history.length);
-		minTime = history[0].ts;
-		maxTime = history[history.length - 1].ts;
-	});
+  let lastUpdatedGraph = 0;
+  $: {
+    (() => {
+      // Don't update
+      if (new Date() - lastUpdatedGraph < 100) return;
+      songPopularity = getSongPopularity(history, sliderTime - 3600 * 24 * 7 * 1000, sliderTime);
+      lastUpdatedGraph = new Date();
+    })();
+  }
 
-	// $: minTime = history[0]?.ts ?? 0;
-	// $: maxTime = history[history.length - 1]?.ts ?? 1;
+  onMount(() => {
+    console.log('history:', history.length);
+    minTime = history[0].ts;
+    maxTime = history[history.length - 1].ts;
+    sliderTimeValue = [(maxTime - minTime) / 1e3];
+    console.log('sliderTimeValue:', sliderTimeValue);
+    sliderTime = 0;
+  });
 </script>
 
-<div class="flex w-full flex-col gap-2">
-	<h1>Hello world</h1>
-	<p>{history.length.toLocaleString('en-US')} streams</p>
+<div class="mx-auto flex h-full w-full max-w-4xl flex-col gap-1 overflow-x-auto">
+  <p>
+    {Math.floor((maxTime - minTime) / 1e3 / 3600 / 24).toLocaleString()} days
+  </p>
+  <p>Data range: {formatTimestamp(minTime)} &ndash; {formatTimestamp(maxTime)}</p>
 
-	<div id="histogram">
-		<pre class="mono text-sm">{JSON.stringify(history[0], null, 2)}</pre>
-		<pre class="mono text-sm">{JSON.stringify(history[history.length - 1], null, 2)}</pre>
-	</div>
+  <div class="mb-2 mt-2 flex flex-col gap-4">
+    <div class="mx-3">
+      <Slider
+        class="w-full"
+        bind:value={sliderTimeValue}
+        max={(maxTime - minTime) / 1e3}
+        min={0}
+        step={3600 * 24}
+      />
+    </div>
+    <p class="mx-auto text-4xl tabular-nums">
+      {formatTimestamp(sliderTime)}
+    </p>
+  </div>
 
-	<div class="mt-1 flex flex-col gap-4">
-		<div class="mx-1.5">
-			<Slider
-				class="w-full"
-				bind:value={sliderTimeValue}
-				max={(maxTime - minTime) / 1e3}
-				min={0}
-				step={3600 * 1e2 + 103}
-			/>
-		</div>
-		<p class="tabular-nums">
-			{new Date(sliderTime).toLocaleString('en-US', {
-				year: 'numeric',
-				month: '2-digit',
-				day: '2-digit',
-				hour: 'numeric',
-				minute: 'numeric',
-				second: 'numeric',
-				hour12: false
-			})}
-		</p>
-	</div>
+  <div class="h-full overflow-y-auto py-2">
+    <div class="flex flex-col gap-2">
+      {#each songPopularity as [track, ms] (track.track_uri)}
+        <div class="flex h-20 items-stretch text-white dark:text-white overflow-hidden rounded-md">
+          <!-- Image -->
+          <div
+            class="w-20 shrink-0 rounded-l-md"
+            style={`background-color: hsl(${cyrb53(track.artist_name, 0, track) % 256}, 30%, 20%)`}
+          ></div>
+					
+          <div class="relative flex h-full grow items-center gap-4 rounded-r-md bg-neutral-500 py-2">
+            <!-- Length -->
+            <div
+              class="absolute h-full"
+              style={`
+                width: ${(ms / songPopularity[0][1]) * 100}% !important;
+                background-color: hsl(${cyrb53(track.artist_name, 0, track) % 256}, 30%, 30%);
+              `}
+            />
+
+            <!-- Track info -->
+            <div class="px-6 z-10">
+              <p class="line-clamp-1 font-bold">{track.track_name}</p>
+              <p class="text-nowrap">{track.artist_name}</p>
+            </div>
+
+            <!-- Track listening-to duration -->
+            <div class="my-auto ml-auto mr-2 z-10 tabular-nums px-4">{formatDuration(ms)}</div>
+          </div>
+        </div>
+      {/each}
+    </div>
+  </div>
 </div>
