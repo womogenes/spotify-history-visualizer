@@ -10,12 +10,12 @@
   import Histogram from './Histogram.svelte';
 
   // UI loading state vars
-  let uploadedFiles = 0;
-  let loadedFiles = 0;
-  let loadedLocalStorage = false;
-  $: doneUploading = loadedFiles === uploadedFiles;
+  let uploadedFiles = $state(0);
+  let loadedFiles = $state(0);
+  let loadedLocalStorage = $state(false);
+  let doneUploading = $derived(loadedFiles === uploadedFiles);
 
-  let history = [];
+  let history = $state([]);
   ldb.get('streaming_history', (v) => {
     if (v) history = mergeHistory(history, v);
     loadedLocalStorage = true;

@@ -1,27 +1,33 @@
 <script>
+  import { run } from 'svelte/legacy';
+
   import { Slider } from '$lib/components/ui/slider';
   import { onMount } from 'svelte';
   import { getSongPopularity } from '$lib/logic/summary';
   import { formatTimestamp, formatDuration } from '$lib/logic/utils';
   import { cyrb53 } from '$lib/logic/utils';
 
-  export let history = [];
+  /** @type {{history?: any}} */
+  let { history = [] } = $props();
 
-  let minTime = 0;
-  let maxTime = 0;
-  let sliderTimeValue = [0];
-  $: sliderTime = sliderTimeValue[0] * 1e3 + minTime;
-  let songPopularity = [];
+  let minTime = $state(0);
+  let maxTime = $state(0);
+  let sliderTimeValue = $state([0]);
+  let sliderTime;
+  run(() => {
+    sliderTime = sliderTimeValue[0] * 1e3 + minTime;
+  });
+  let songPopularity = $state([]);
 
-  let lastUpdatedGraph = 0;
-  $: {
+  let lastUpdatedGraph = $state(0);
+  run(() => {
     (() => {
       // Don't update
       if (new Date() - lastUpdatedGraph < 100) return;
       songPopularity = getSongPopularity(history, sliderTime - 3600 * 24 * 7 * 1000, sliderTime);
       lastUpdatedGraph = new Date();
     })();
-  }
+  });
 
   onMount(() => {
     console.log('history:', history.length);
@@ -72,7 +78,7 @@
                 width: ${(ms / songPopularity[0][1]) * 100}% !important;
                 background-color: hsl(${cyrb53(track.artist_name, 0, track) % 256}, 30%, 30%);
               `}
-            />
+></div>
 
             <!-- Track info -->
             <div class="px-6 z-10">

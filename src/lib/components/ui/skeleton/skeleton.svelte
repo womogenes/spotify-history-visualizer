@@ -1,10 +1,11 @@
 <script>
   import { cn } from '$lib/utils.js';
-  let className = undefined;
-  export { className as class };
+  /** @type {{class?: any, [key: string]: any}} */
+  let { class: className = undefined, ...rest } = $props();
+  
 </script>
 
 <div
   class={cn('animate-pulse rounded-md bg-neutral-200 dark:bg-neutral-800', className)}
-  {...$$restProps}
+  {...rest}
 ></div>
