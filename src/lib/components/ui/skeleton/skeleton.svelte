@@ -1,8 +1,6 @@
 <script>
   import { cn } from '$lib/utils.js';
-  /** @type {{class?: any, [key: string]: any}} */
   let { class: className = undefined, ...rest } = $props();
-  
 </script>
 
 <div

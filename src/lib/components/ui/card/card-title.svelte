@@ -1,8 +1,6 @@
 <script>
   import { cn } from '$lib/utils.js';
-  /** @type {{class?: any, tag?: string, children?: import('svelte').Snippet, [key: string]: any}} */
   let { class: className = undefined, tag = 'h3', children, ...rest } = $props();
-  
 </script>
 
 <svelte:element
