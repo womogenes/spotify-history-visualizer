@@ -54,11 +54,23 @@
     </div>
 
     <!-- Stats -->
-    <div class="p-4">
-      <div class="flex items-center gap-1">
+    <div class="flex flex-col gap-2 p-4">
+      <div>
+        <b>Date range:</b>
+        {#if loadedLocalStorage}
+          <p>
+            {new Date(history[0].ts).toLocaleDateString()}
+            &ndash;
+            {new Date(history[history.length - 1].ts).toLocaleDateString()}
+          </p>
+        {:else}
+          <Skeleton class="mt-1 h-4 w-12" />
+        {/if}
+      </div>
+      <div>
         <b>Streams:</b>
         {#if loadedLocalStorage}
-          {history.length.toLocaleString('en-US')}
+          <p>{history.length.toLocaleString('en-US')}</p>
         {:else}
           <Skeleton class="mt-1 h-4 w-12" />
         {/if}
