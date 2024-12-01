@@ -2,6 +2,7 @@
   import { Slider } from '$lib/components/ui/slider';
   import { getSongPopularity } from '$lib/logic/summary';
   import { cyrb53, formatDuration, formatTimestamp } from '$lib/logic/utils';
+  import { Play } from 'lucide-svelte';
 
   let { history = [] } = $props();
 
@@ -52,7 +53,7 @@
         <div class="flex h-16 items-stretch overflow-hidden rounded-md text-white dark:text-white">
           <!-- Image -->
           <div
-            class="w-16 shrink-0 rounded-l-md"
+            class="flex w-16 shrink-0 cursor-pointer items-center justify-center rounded-l-md"
             style={`background-color: hsl(${cyrb53(track.artist_name, 0, track) % 256}, 30%, 20%)`}
           ></div>
 

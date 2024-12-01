@@ -1,8 +1,7 @@
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from '$env/static/private';
-import { json } from '@sveltejs/kit';
 
 // Get API token from Spotify
-const api_token = (
+export const SPOTIFY_API_TOKEN = (
   await (
     await fetch('https://accounts.spotify.com/api/token', {
       method: 'POST',
@@ -15,15 +14,3 @@ const api_token = (
     })
   ).json()
 ).access_token;
-
-export async function GET({ url, setHeaders, request }) {
-  const search = url.searchParams.get('search') || '';
-
-  console.log('api_token:', api_token);
-
-  setHeaders({
-    'cache-control': 'max-age=3600'
-  });
-
-  return json({});
-}
