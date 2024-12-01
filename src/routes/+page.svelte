@@ -68,15 +68,15 @@
         {#if loadedLocalStorage}
           {#if history.length > 0}
             <p>
-              {formatTimestamp(history[0])}
+              {formatTimestamp(history[0]?.ts)}
               &ndash;
-              {formatTimestamp(history[history.length - 1])}
+              {formatTimestamp(history[history.length - 1]?.ts)}
             </p>
           {:else}
             <p class="text-muted">No data</p>
           {/if}
         {:else}
-          <Skeleton class="mt-1 h-4 w-12" />
+          <Skeleton class="mt-1 h-5 w-12" />
         {/if}
       </div>
       <div>
@@ -84,7 +84,7 @@
         {#if loadedLocalStorage}
           <p>{history.length.toLocaleString('en-US')}</p>
         {:else}
-          <Skeleton class="mt-1 h-4 w-12" />
+          <Skeleton class="mt-1 h-5 w-12" />
         {/if}
       </div>
     </div>

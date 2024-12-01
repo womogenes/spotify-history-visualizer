@@ -37,7 +37,7 @@
         <p>{formatTimestamp(maxTime)}</p>
       </div>
     </div>
-    <p class="mx-auto mb-2">Top songs</p>
+    <p class="mx-auto mb-1">Top songs in range:</p>
     <p class="mx-auto text-4xl font-bold tabular-nums">
       {formatTimestamp(sliderTime - queryRange)}
       &ndash;

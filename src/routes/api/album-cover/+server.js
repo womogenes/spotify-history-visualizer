@@ -1,4 +1,5 @@
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from '$env/static/private';
+import { json } from '@sveltejs/kit';
 
 // Get API token from Spotify
 const api_token = (
@@ -18,9 +19,11 @@ const api_token = (
 export async function GET({ url, setHeaders, request }) {
   const search = url.searchParams.get('search') || '';
 
+  console.log('api_token:', api_token);
+
   setHeaders({
     'cache-control': 'max-age=3600'
   });
 
-  return json(todos);
+  return json({});
 }
