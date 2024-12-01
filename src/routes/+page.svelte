@@ -7,7 +7,8 @@
   import Dropzone from 'svelte-file-dropzone';
   import { cn } from 'lib/utils';
   import { Skeleton } from 'lib/components/ui/skeleton';
-  import Histogram from './Histogram.svelte';
+  import TrackList from './TrackList.svelte';
+  import { formatTimestamp } from 'lib/logic/utils';
 
   // UI loading state vars
   let uploadedFiles = $state(0);
@@ -30,11 +31,18 @@
       reader.readAsText(file);
       reader.onload = (e) => {
         // Reader has finished parsing the file; add it to localStorage
-        const json = e.target.result;
-        const parsedJson = parseHistoryJSON(json);
-        ldb.set('streaming_history', mergeHistory(history, parsedJson));
-        history = mergeHistory(history, parsedJson);
-        loadedFiles++;
+        try {
+          const json = e.target.result;
+          const parsedJson = parseHistoryJSON(json);
+          history = mergeHistory(history, parsedJson);
+          ldb.set('streaming_history', $state.snapshot(history));
+          loadedFiles++;
+        } catch (e) {
+          // Did not successfully upload file, lower count
+          uploadedFiles--;
+
+          throw e;
+        }
       };
     });
   };
@@ -58,11 +66,15 @@
       <div>
         <b>Date range:</b>
         {#if loadedLocalStorage}
-          <p>
-            {new Date(history[0].ts).toLocaleDateString()}
-            &ndash;
-            {new Date(history[history.length - 1].ts).toLocaleDateString()}
-          </p>
+          {#if history.length > 0}
+            <p>
+              {formatTimestamp(history[0])}
+              &ndash;
+              {formatTimestamp(history[history.length - 1])}
+            </p>
+          {:else}
+            <p class="text-muted">No data</p>
+          {/if}
         {:else}
           <Skeleton class="mt-1 h-4 w-12" />
         {/if}
@@ -105,8 +117,8 @@
   <!-- Main data -->
   <div class="w-full p-4">
     {#if history.length > 0 && loadedLocalStorage}
-      <Histogram {history} />
-    {:else if loadedLocalStorage}
+      <TrackList {history} />
+    {:else if loadedLocalStorage && doneUploading}
       <div class="flex h-full items-center justify-center">Upload some files to start.</div>
     {:else}
       <div class="flex flex-col gap-2">

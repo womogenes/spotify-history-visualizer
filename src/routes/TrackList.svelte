@@ -1,48 +1,52 @@
 <script>
   import { Slider } from '$lib/components/ui/slider';
-  import { onMount } from 'svelte';
   import { getSongPopularity } from '$lib/logic/summary';
-  import { formatTimestamp, formatDuration } from '$lib/logic/utils';
-  import { cyrb53 } from '$lib/logic/utils';
+  import { cyrb53, formatDuration, formatTimestamp } from '$lib/logic/utils';
 
   let { history = [] } = $props();
 
   let minTime = $state(0);
   let maxTime = $state(0);
+  let queryRange = $state(3600 * 24 * 7 * 1000);
   let sliderTimeValue = $state([0]);
   let sliderTime = $derived(sliderTimeValue[0] * 1e3 + minTime);
   let songPopularity = $derived.by(() => {
-    return getSongPopularity(history, sliderTime - 3600 * 24 * 7 * 1000, sliderTime);
+    return getSongPopularity(history, sliderTime - queryRange, sliderTime);
   });
 
-  onMount(() => {
+  $effect(() => {
     minTime = history[0].ts;
     maxTime = history[history.length - 1].ts;
-    sliderTimeValue = [(maxTime - minTime) / 1e3];
+    sliderTimeValue = [(maxTime - minTime) / 1e3]; // Jump to end of history
   });
 </script>
 
 <div class="mx-auto flex h-full w-full max-w-4xl flex-col gap-1 overflow-x-auto">
-  <div class="mb-2 mt-2 flex flex-col gap-4">
+  <div class="mb-2 mt-2 flex flex-col">
     <div class="mx-3">
       <Slider
+        type="range"
         class="mb-2 w-full"
         bind:value={sliderTimeValue}
-        max={(maxTime - minTime) / 1e3}
         min={0}
+        max={(maxTime - minTime) / 1e3}
         step={3600 * 24}
       />
       <div class="text-muted flex justify-between">
-        <p>{new Date(minTime).toLocaleDateString()}</p>
-        <p>{new Date(minTime).toLocaleDateString()}</p>
+        <p>{formatTimestamp(minTime)}</p>
+        <p>{formatTimestamp(maxTime)}</p>
       </div>
     </div>
-    <p class="mx-auto text-4xl tabular-nums">
+    <p class="mx-auto mb-2">Top songs</p>
+    <p class="mx-auto text-4xl font-bold tabular-nums">
+      {formatTimestamp(sliderTime - queryRange)}
+      &ndash;
       {formatTimestamp(sliderTime)}
     </p>
   </div>
 
   <div class="h-full overflow-y-auto py-2">
+    <!-- List container -->
     <div class="flex flex-col gap-2">
       {#each songPopularity as [track, ms] (track.track_uri)}
         <div class="flex h-16 items-stretch overflow-hidden rounded-md text-white dark:text-white">

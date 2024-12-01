@@ -34,5 +34,6 @@ export const getSongPopularity = (history, startTime: number, endTime: number) =
   return Array.from(msListenedTo)
     .sort((a, b) => -(a[1] - b[1]))
     .filter(([uri, _]) => uri && songDetails.has(uri))
-    .map(([uri, duration]) => [songDetails.get(uri), duration]);
+    .map(([uri, duration]) => [songDetails.get(uri), duration])
+    .slice(0, 10);
 };
