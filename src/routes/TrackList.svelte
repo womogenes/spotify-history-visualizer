@@ -1,8 +1,10 @@
 <script>
   import { Slider } from '$lib/components/ui/slider';
   import { getSongPopularity } from '$lib/logic/summary';
-  import { cyrb53, formatDuration, formatTimestamp } from '$lib/logic/utils';
-  import { Play } from 'lucide-svelte';
+  import { formatTimestamp } from '$lib/logic/utils';
+  import TrackItem from 'lib/components/TrackItem.svelte';
+  import { flip } from 'svelte/animate';
+  import { fade, slide } from 'svelte/transition';
 
   let { history = [] } = $props();
 
@@ -49,35 +51,13 @@
   <div class="h-full overflow-y-auto py-2">
     <!-- List container -->
     <div class="flex flex-col gap-2">
-      {#each songPopularity as [track, ms] (track.track_uri)}
-        <div class="flex h-16 items-stretch overflow-hidden rounded-md text-white dark:text-white">
-          <!-- Image -->
-          <div
-            class="flex w-16 shrink-0 cursor-pointer items-center justify-center rounded-l-md"
-            style={`background-color: hsl(${cyrb53(track.artist_name, 0, track) % 256}, 30%, 20%)`}
-          ></div>
-
-          <div
-            class="relative flex h-full grow items-center gap-4 rounded-r-md bg-neutral-500 py-2"
-          >
-            <!-- Length -->
-            <div
-              class="absolute h-full"
-              style={`
-                width: ${(ms / songPopularity[0][1]) * 100}% !important;
-                background-color: hsl(${cyrb53(track.artist_name, 0, track) % 256}, 30%, 30%);
-              `}
-            ></div>
-
-            <!-- Track info -->
-            <div class="z-10 px-4">
-              <p class="line-clamp-1 font-bold">{track.track_name}</p>
-              <p class="text-muted-dark text-nowrap text-sm">{track.artist_name}</p>
-            </div>
-
-            <!-- Track listening-to duration -->
-            <div class="z-10 my-auto ml-auto mr-2 px-4 tabular-nums">{formatDuration(ms)}</div>
-          </div>
+      {#each songPopularity as [track, ms], index (track.track_uri)}
+        <div
+          animate:flip={{ duration: 200 }}
+          transition:fade={{ duration: 200 }}
+          style={`z-index: ${1000 - 100 * index}`}
+        >
+          <TrackItem {track} {ms} />
         </div>
       {/each}
     </div>

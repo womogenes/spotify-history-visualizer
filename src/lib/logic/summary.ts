@@ -22,13 +22,17 @@ export const getSongPopularity = (history, startTime: number, endTime: number) =
   const msListenedTo = new Map();
   for (let i = startIdx; i <= endIdx; i++) {
     const { ms_played, track_uri: uri } = history[i];
-    songDetails.set(uri, {
-      track_name: history[i].track_name,
-      artist_name: history[i].artist_name,
-      album_name: history[i].album_name,
-      track_uri: uri
-    });
     msListenedTo.set(uri, (msListenedTo.get(uri) ?? 0) + ms_played);
+
+    // Cache song details
+    if (!songDetails.has(uri)) {
+      songDetails.set(uri, {
+        track_name: history[i].track_name,
+        artist_name: history[i].artist_name,
+        album_name: history[i].album_name,
+        track_uri: uri
+      });
+    }
   }
 
   return Array.from(msListenedTo)
