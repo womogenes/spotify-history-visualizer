@@ -52,11 +52,7 @@
     <!-- List container -->
     <div class="flex flex-col gap-2">
       {#each songPopularity as [track, ms], index (track.track_uri)}
-        <div
-          animate:flip={{ duration: 200 }}
-          transition:fade={{ duration: 200 }}
-          style={`z-index: ${1000 - 100 * index}`}
-        >
+        <div style={`z-index: ${1000 - 100 * index}`}>
           <TrackItem {track} {ms} />
         </div>
       {/each}

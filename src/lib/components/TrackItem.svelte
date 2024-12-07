@@ -42,6 +42,7 @@
         let [r, g, b] = colorThief.getColor(albumCoverEl);
         let [h, s, l] = rgb2hsl(r / 255, g / 255, b / 255);
         [h, s, l] = [h, s, h >= 45 && h <= 75 ? Math.min(l, 0.35) : Math.min(l, 0.55)];
+        s = Math.min(s, 0.3);
         color = `${h} ${s * 100}% ${l * 100}`;
         trackCache.update((x) => ({ ...x, [`track_${trackId}`]: [albumCoverUrl, color] }));
       } catch {
